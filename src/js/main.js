@@ -15,14 +15,37 @@ let map;
 
 // sets up all values
 const setup = async () => {
-  let guessForm = document.getElementById("btnGuess");
-  guessForm.addEventListener("click", handleGuess);
+  let btnGuessElement = document.getElementById("btnGuess");
+  btnGuessElement.setAttribute("disabled", true);
+  btnGuessElement.addEventListener("click", handleGuess);
+
+  let arachnidNameElement = document.getElementById("arachnidName");
+  arachnidNameElement.addEventListener("input", checkEmptyName)
+
+  arachnidNameElement.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      btnGuessElement.click();
+    }
+  });
 
   let resultModalElement = document.getElementById('resultModal');
   resultModalElement.addEventListener("hidden.bs.modal", loadArachnid);
 
   updateScore();
   await loadArachnid();
+}
+
+const checkEmptyName = () => {
+  let arachnidNameElement = document.getElementById("arachnidName");
+  let btnGuessElement = document.getElementById("btnGuess");
+
+  if (arachnidNameElement.value.trim() === "" || arachnidNameElement.value === null) {
+    btnGuessElement.setAttribute("disabled", true);
+    return;
+  }
+
+  btnGuessElement.removeAttribute("disabled");
 }
 
 // Load an arachnid
@@ -34,6 +57,7 @@ const loadArachnid = async () => {
   let parRankElement = document.getElementById("parRank");
   let mapElement = document.getElementById("map");
   let parMapElement = document.getElementById("parMap");
+  let btnGuessElement = document.getElementById("btnGuess");
   arachnid = await getRandomArachnid();
 
   arachnidElement.onload = async () => {
@@ -75,6 +99,7 @@ const loadArachnid = async () => {
 
   let rank = arachnid.taxon.rank;
   arachnidNameElement.value = "";
+  btnGuessElement.setAttribute("disabled", true);
   arachnidNameElement.setAttribute("placeholder", rank.charAt(0).toUpperCase() + rank.slice(1));
   parRankElement.innerHTML = `Guess the arachnid <b>${rank}</b>! Case-insensitive.`;
   parMapElement.innerHTML = `${arachnid.place_guess} | ${arachnid.time_zone}`;
@@ -88,11 +113,6 @@ const handleGuess = async () => {
   let nameArachnid = arachnid.taxon.name.trim().toLowerCase();
   let resultElement = document.getElementById("resultElement");
 
-  if (nameGuess === "") {
-    alert(`${arachnid.taxon.rank} must be filled out`);
-    return;
-  }
-
   // Remove any previous notifications
   let i, elements = document.getElementsByClassName('alert');
   for (i = elements.length; i--;) {         
@@ -100,8 +120,7 @@ const handleGuess = async () => {
   }
 
   const resultModal = new bootstrap.Modal('#resultModal', {
-    keyboard: true,
-    focus: false
+
   })
 
   if (nameGuess === nameArachnid) {
