@@ -13,20 +13,13 @@ const DEFAULT_ZOOM = 10;
 let arachnid;
 let map;
 
-function fixContentHeight(){
-  var viewHeight = $(window).height();
-  var header = $("div[data-role='header']:visible:visible");
-  var navbar = $("div[data-role='navbar']:visible:visible");
-  var content = $("div[data-role='content']:visible:visible");
-  var contentHeight = viewHeight - header.outerHeight() - navbar.outerHeight();
-  content.height(contentHeight);
-  map.updateSize();
-}
-
 // sets up all values
 const setup = async () => {
   let guessForm = document.getElementById("btnGuess");
   guessForm.addEventListener("click", handleGuess);
+
+  let resultModalElement = document.getElementById('resultModal');
+  resultModalElement.addEventListener("hidden.bs.modal", loadArachnid);
 
   updateScore();
   await loadArachnid();
@@ -84,7 +77,7 @@ const loadArachnid = async () => {
   arachnidNameElement.value = "";
   arachnidNameElement.setAttribute("placeholder", rank.charAt(0).toUpperCase() + rank.slice(1));
   parRankElement.innerHTML = `Guess the arachnid <b>${rank}</b>! Case-insensitive.`;
-  parMapElement.innerHTML = `${arachnid.place_guess} | ${arachnid.zic_time_zone} | ${arachnid.time_zone}`;
+  parMapElement.innerHTML = `${arachnid.place_guess} | ${arachnid.time_zone}`;
   arachnidElement.src = arachnid.photos[0].medium_url;
 }
 
@@ -93,7 +86,7 @@ const handleGuess = async () => {
   let nameGuessUnfiltered = document.getElementById("arachnidName").value;
   let nameGuess = nameGuessUnfiltered.trim().toLowerCase();
   let nameArachnid = arachnid.taxon.name.trim().toLowerCase();
-  let body = document.getElementById("body");
+  let resultElement = document.getElementById("resultElement");
 
   if (nameGuess === "") {
     alert(`${arachnid.taxon.rank} must be filled out`);
@@ -106,16 +99,20 @@ const handleGuess = async () => {
     elements[i].parentNode.removeChild(elements[i]);             
   }
 
+  const resultModal = new bootstrap.Modal('#resultModal', {
+    keyboard: true,
+    focus: false
+  })
 
   if (nameGuess === nameArachnid) {
     addScore(1);
-    body.insertAdjacentHTML("beforebegin", `<div class="alert alert-success alert-dismissible fade show" role="alert">Correct, the ${arachnid.taxon.rank} was ${arachnid.taxon.name}! You wrote: \"${nameGuessUnfiltered}\"<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`);
+    resultElement.innerHTML = `<div class="badge bg-success">Correct</div><br><p>The ${arachnid.taxon.rank} was ${arachnid.taxon.name}, you wrote: "${nameGuessUnfiltered}".</p>`;
   } else {
     resetScore();
-    body.insertAdjacentHTML("beforebegin",`<div class="alert alert-danger alert-dismissible fade show" role="alert">Incorrect, the ${arachnid.taxon.rank} was ${arachnid.taxon.name}! You wrote: \"${nameGuessUnfiltered}\"<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`);
+    resultElement.innerHTML = `<div class="badge bg-danger">Incorrect</div><br><p>The ${arachnid.taxon.rank} was ${arachnid.taxon.name}, you wrote: "${nameGuessUnfiltered}".</p>`;
   }
-  
-  await loadArachnid();
+
+  await resultModal.show();
 }
 
 // Gets a random Arachnid

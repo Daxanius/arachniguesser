@@ -12,6 +12,25 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100" id="body">
+  <!-- Resultmodal -->
+  <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Result</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="resultElement">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Resultmodal -->
+
   <main>
     <div class="container px-4 py-3 text-center">
       <!-- The title row -->
@@ -70,7 +89,7 @@
       <div class="row justify-content-center interface">
         <!-- Column -->
         <div class="col-md-4">
-          <p class="lead mb-4" id="parRank"></p>
+          <p class="lead" id="parRank"></p>
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Species" id="arachnidName" aria-label="Species">
             <button class="btn btn-warning" type="button" id="btnGuess">Guess!</button>
