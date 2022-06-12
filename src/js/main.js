@@ -103,6 +103,7 @@ const loadArachnid = async () => {
   arachnidNameElement.setAttribute("placeholder", rank.charAt(0).toUpperCase() + rank.slice(1));
   parRankElement.innerHTML = `Guess the arachnid <b>${rank}</b>! Case-insensitive.`;
   parMapElement.innerHTML = `${arachnid.place_guess} | ${arachnid.time_zone}`;
+  arachnidElement.parentElement.setAttribute("href", arachnid.photos[0].medium_url);
   arachnidElement.src = arachnid.photos[0].medium_url;
 }
 
