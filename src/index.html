@@ -31,6 +31,25 @@
   </div>
   <!-- Resultmodal -->
 
+  <!-- Imagemodal -->
+  <div class="modal fade" id="imgModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title" id="imgModalLabel">Image</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center" id="imgElement">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Imagemodal -->
+
   <main>
     <div class="container px-4 py-3 text-center">
       <!-- The title row -->
@@ -68,9 +87,9 @@
         <!-- Column -->
         <div class="col-sm">
           <h2>Image</h2>
-          <a target="_blank" title="View original image">
+          <button class="image-button" data-bs-toggle="modal" data-bs-target="#imgModal" title="View original image">
             <img class="img-fluid img-arachnid" id="imgArachnid">
-          </a>
+          </button>
         </div>
         <!-- Column -->
 
