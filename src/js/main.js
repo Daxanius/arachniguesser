@@ -152,7 +152,7 @@ const loadArachnid = async () => {
 const handleGuess = async () => {
   let nameGuessUnfiltered = document.getElementById("arachnidName").value;
   let resultElement = document.getElementById("resultElement");
-  
+
   let nameGuess = nameGuessUnfiltered.trim().toLowerCase();
   let nameArachnid = arachnid.taxon.name.trim().toLowerCase();
 
