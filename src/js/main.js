@@ -114,43 +114,47 @@ const checkEmptyName = () => {
 // Load an arachnid
 const loadArachnid = async () => {
   await setLoading(true);
-
   let arachnidNameElement = document.getElementById("arachnidName");
   let arachnidElement = document.getElementById("imgArachnid");
   let parRankElement = document.getElementById("parRank");
   let parMapElement = document.getElementById("parMap");
   let imgElement = document.getElementById("imgElement");
   let btnGuessElement = document.getElementById("btnGuess");
+
   arachnid = await getRandomArachnid();
 
+  // Updating the chart
   let data = await getObservations(arachnid.taxon.id);
   chart.data.datasets.forEach((dataset) => {
     dataset.data =  data;
     dataset.label = "Number of observations";
   });
-
   chart.update();
 
+  // Updating the other data
   arachnidNameElement.value = "";
   btnGuessElement.setAttribute("disabled", true);
   arachnidNameElement.setAttribute("placeholder", arachnid.taxon.rank.charAt(0).toUpperCase() + arachnid.taxon.rank.slice(1));
   parRankElement.innerHTML = `Guess the arachnid <b>${arachnid.taxon.rank}</b>! Case-insensitive.`;
   parMapElement.innerHTML = `${arachnid.place_guess} | ${arachnid.time_zone}`;
 
-  imgElement.innerHTML = ``;
+  // Adding photos to the modal
+  imgElement.innerHTML = "";
   for (let i = 0; i < arachnid.photos.length; i++) {
     imgElement.insertAdjacentHTML("beforeend", `<div class="pb-3"><img src=${arachnid.photos[i].medium_url}></div>`);
   }
 
+  // Finally, adding the arachnid photo
   arachnidElement.src = arachnid.photos[0].medium_url;
 }
 
 // Handles a user guess
 const handleGuess = async () => {
   let nameGuessUnfiltered = document.getElementById("arachnidName").value;
+  let resultElement = document.getElementById("resultElement");
+  
   let nameGuess = nameGuessUnfiltered.trim().toLowerCase();
   let nameArachnid = arachnid.taxon.name.trim().toLowerCase();
-  let resultElement = document.getElementById("resultElement");
 
   // Remove any previous notifications
   let i, elements = document.getElementsByClassName('alert');
@@ -167,31 +171,6 @@ const handleGuess = async () => {
   }
 
   await resultModal.show();
-}
-
-// Gets a random Arachnid
-const getRandomArachnid = async () => {
-  let page = Math.floor(Math.random() * 100);
-  return await getArachnid(page);
-}
-
-// Gets an Arachnid
-const getArachnid = async (page) => {
-  let responseJson = await fetch(GET_REQUEST_ARACHNID.replace("{page}", page));
-  let response = await responseJson.json();
-  return response[0];
-}
-
-const getObservations = async (taxon_id) => {
-  let responseJson = await fetch(GET_REQUEST_HISTOGRAM.replace("{id}", taxon_id));
-  let response = await responseJson.json();
-
-  let array = [];
-  for (let i = 1; i < 12; i++) {
-    array.push(response.results.month_of_year[i]);
-  }
-
-  return array;
 }
 
 // Shows a loading spinner
@@ -214,6 +193,32 @@ const setLoading = async (value) => {
       interfaceElements[i].removeAttribute("hidden");
     }
   }
+}
+
+// Gets a random Arachnid
+const getRandomArachnid = async () => {
+  let page = Math.floor(Math.random() * 100);
+  return await getArachnid(page);
+}
+
+// Gets an Arachnid
+const getArachnid = async (page) => {
+  let responseJson = await fetch(GET_REQUEST_ARACHNID.replace("{page}", page));
+  let response = await responseJson.json();
+  return response[0];
+}
+
+// Gets the amount of observations for each month
+const getObservations = async (taxon_id) => {
+  let responseJson = await fetch(GET_REQUEST_HISTOGRAM.replace("{id}", taxon_id));
+  let response = await responseJson.json();
+
+  let array = [];
+  for (let i = 1; i < 12; i++) {
+    array.push(response.results.month_of_year[i]);
+  }
+
+  return array;
 }
 
 window.addEventListener("load", setup);
