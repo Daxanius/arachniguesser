@@ -18,12 +18,14 @@ footer {
 
 .img-arachnid {
     width: 100%;
+    min-width: 300px;
     max-height: 310px;
 }
 
 .map {
     width: 100%;
     height: 310px;
+    min-width: 300px;
 }
 
 .spinner {

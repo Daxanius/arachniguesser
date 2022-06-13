@@ -1,5 +1,5 @@
 // Constants
-const WEB_REQUEST = "https://www.inaturalist.org/observations.json?&iconic_taxa%5B%5D=Arachnida&has%5B%5D=photos&has%5B%5D=geo&per_page=1&quality_grade=research&page={page}";
+const WEB_REQUEST = "https://www.inaturalist.org/observations.json?iconic_taxa%5B%5D=Arachnida&has%5B%5D=photos&has%5B%5D=geo&per_page=1&quality_grade=research&page={page}";
 
 // Storage management
 const SCORE_DEFAULT = 0;
@@ -29,10 +29,45 @@ const setup = async () => {
     }
   });
 
+  const ctx = document.getElementById('myChart').getContext('2d');
+  const myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      datasets: [{
+        label: '# of observations',
+        data: [12, 19, 3, 5, 2, 3, 20, 10],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
   let resultModalElement = document.getElementById('resultModal');
   resultModalElement.addEventListener("hidden.bs.modal", loadArachnid);
 
-  updateScore();
   await loadArachnid();
 }
 
@@ -126,10 +161,8 @@ const handleGuess = async () => {
   })
 
   if (nameGuess === nameArachnid) {
-    addScore(1);
     resultElement.innerHTML = `<div class="badge bg-success">Correct</div><br><p>The ${arachnid.taxon.rank} was ${arachnid.taxon.name}, you wrote: "${nameGuessUnfiltered}".</p>`;
   } else {
-    resetScore();
     resultElement.innerHTML = `<div class="badge bg-danger">Incorrect</div><br><p>The ${arachnid.taxon.rank} was ${arachnid.taxon.name}, you wrote: "${nameGuessUnfiltered}".</p>`;
   }
 
@@ -143,61 +176,10 @@ const getRandomArachnid = async () => {
 }
 
 // Gets an Arachnid
-const getArachnid = async (page, month) => {
+const getArachnid = async (page) => {
   let response = await fetch(WEB_REQUEST.replace("{page}", page));
   let responseJson = await response.json();
   return responseJson[0];
-}
-
-const updateScore = () => {
-  let highScoreElement = document.getElementById("highScore");
-  let scoreElement = document.getElementById("score");
-
-  let scoreStg = Number.parseInt(localStorage.getItem(KEY_SCORE));
-  let scoreHighStg = Number.parseInt(localStorage.getItem(KEY_SCORE_HIGH));
-
-  if (scoreStg === null || isNaN(scoreStg)) {
-    scoreStg = 0;
-  }
-
-  if (scoreHighStg === null || isNaN(scoreHighStg)) {
-    scoreHighStg = 0;
-  }
-
-  highScoreElement.innerHTML = `Highscore: ${scoreHighStg}`;
-  scoreElement.innerHTML = `Score: ${scoreStg}`;
-}
-
-// Ads a set amount of points to the score
-const addScore = (score) => {
-  let highScoreElement = document.getElementById("highScore");
-  let scoreElement = document.getElementById("score");
-
-  let scoreStg = Number.parseInt(localStorage.getItem(KEY_SCORE));
-  let scoreHighStg = Number.parseInt(localStorage.getItem(KEY_SCORE_HIGH));
-
-  if (scoreStg === null || isNaN(scoreStg)) {
-    scoreStg = 0;
-  }
-
-  if (scoreHighStg === null || isNaN(scoreHighStg)) {
-    scoreHighStg = 0;
-  }
-
-  scoreStg += Math.max(score, 0);
-
-  localStorage.setItem(KEY_SCORE, scoreStg);
-  if (scoreStg > scoreHighStg) {
-    localStorage.setItem(KEY_SCORE_HIGH, scoreStg);
-  }
-
-  updateScore();
-}
-
-// Resets the score
-const resetScore = () => {
-  localStorage.setItem(KEY_SCORE, SCORE_DEFAULT);
-  updateScore();
 }
 
 // Shows a loading spinner
