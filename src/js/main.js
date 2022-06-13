@@ -33,10 +33,10 @@ const setup = async () => {
       datasets: [{
         label: 'Number of observations',
         backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
+          'rgba(255, 193, 7, 1)',
         ],
         borderColor: [
-          'rgba(255, 99, 132, 1)',
+          'rgba(0, 0, 0, 1)',
         ],
         borderWidth: 1
       }]
