@@ -1,16 +1,13 @@
 // Constants
-const WEB_REQUEST = "https://www.inaturalist.org/observations.json?iconic_taxa%5B%5D=Arachnida&has%5B%5D=photos&has%5B%5D=geo&per_page=1&quality_grade=research&page={page}";
-
-// Storage management
-const SCORE_DEFAULT = 0;
-const KEY_SCORE = "ag_score";
-const KEY_SCORE_HIGH = "ag_score_high";
+const GET_REQUEST_ARACHNID = "https://www.inaturalist.org/observations.json?iconic_taxa%5B%5D=Arachnida&has%5B%5D=photos&has%5B%5D=geo&per_page=1&quality_grade=research&page={page}";
+const GET_REQUEST_HISTOGRAM = "https://api.inaturalist.org/v1/observations/histogram?identifications=most_agree&quality_grade=research&date_field=observed&interval=month_of_year&taxon_id={id}";
 
 // Map settings
 const DEFAULT_ZOOM = 10;
 
 // Globals
 let arachnid;
+let chart;
 let map;
 
 // sets up all values
@@ -21,7 +18,6 @@ const setup = async () => {
 
   let arachnidNameElement = document.getElementById("arachnidName");
   arachnidNameElement.addEventListener("input", checkEmptyName)
-
   arachnidNameElement.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -29,29 +25,18 @@ const setup = async () => {
     }
   });
 
-  const ctx = document.getElementById('myChart').getContext('2d');
-  const myChart = new Chart(ctx, {
+  const chartElement = document.getElementById('observationsChart').getContext('2d');
+  chart = new Chart(chartElement, {
     type: 'bar',
     data: {
       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
       datasets: [{
-        label: '# of observations',
-        data: [12, 19, 3, 5, 2, 3, 20, 10],
+        label: 'Number of observations',
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)'
         ],
         borderColor: [
           'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
         ],
         borderWidth: 1
       }]
@@ -133,6 +118,16 @@ const loadArachnid = async () => {
     });
   };
 
+  let data = await getObservations(arachnid.taxon.id);
+  chart.data.datasets.forEach((dataset) => {
+    dataset.data =  data;
+    dataset.label = "Number of observations";
+  });
+
+
+  // chart.data.datasets.data = await getObservations(arachnid.taxon.id);
+  chart.update();
+
   let rank = arachnid.taxon.rank;
   arachnidNameElement.value = "";
   btnGuessElement.setAttribute("disabled", true);
@@ -177,9 +172,31 @@ const getRandomArachnid = async () => {
 
 // Gets an Arachnid
 const getArachnid = async (page) => {
-  let response = await fetch(WEB_REQUEST.replace("{page}", page));
-  let responseJson = await response.json();
-  return responseJson[0];
+  let responseJson = await fetch(GET_REQUEST_ARACHNID.replace("{page}", page));
+  let response = await responseJson.json();
+  return response[0];
+}
+
+const getObservations = async (taxon_id) => {
+  let responseJson = await fetch(GET_REQUEST_HISTOGRAM.replace("{id}", taxon_id));
+  let response = await responseJson.json();
+
+  let array = [
+    response.results.month_of_year[1],
+    response.results.month_of_year[2],
+    response.results.month_of_year[3],
+    response.results.month_of_year[4],
+    response.results.month_of_year[5],
+    response.results.month_of_year[6],
+    response.results.month_of_year[7],
+    response.results.month_of_year[8],
+    response.results.month_of_year[9],
+    response.results.month_of_year[10],
+    response.results.month_of_year[11],
+    response.results.month_of_year[12]
+  ]
+
+  return array;
 }
 
 // Shows a loading spinner
